@@ -258,7 +258,7 @@ impl Video {
         let video_sink = video_sink.downcast::<gst_app::AppSink>().unwrap();
 
         let text_sink: gst::Element = pipeline.property("text-sink");
-        let text_sink = text_sink.downcast::<gst_app::AppSink>().unwrap_or_default();
+        let text_sink = text_sink.downcast::<gst_app::AppSink>().unwrap();
 
         Self::from_gst_pipeline(pipeline, video_sink, Some(text_sink))
     }
