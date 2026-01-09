@@ -232,10 +232,16 @@ impl Video {
     pub fn new(uri: &url::Url) -> Result<Self, Error> {
         gst::init()?;
 
+        // let pipeline = format!(
+        //     "playbin uri=\"{}\" text-sink=\"appsink name=iced_text sync=true drop=true\" video-sink=\"videoscale ! videoconvert ! appsink name=iced_video drop=true caps=video/x-raw,format=NV12,pixel-aspect-ratio=1/1\"",
+        //     uri.as_str()
+        // );
+
         let pipeline = format!(
-            "playbin uri=\"{}\" text-sink=\"appsink name=iced_text sync=true drop=true\" video-sink=\"videoscale ! videoconvert ! appsink name=iced_video drop=true caps=video/x-raw,format=NV12,pixel-aspect-ratio=1/1\"",
+            "playbin uri=\"{}\" video-sink=\"videoscale ! videoconvert ! appsink name=iced_video drop=true caps=video/x-raw,format=NV12,pixel-aspect-ratio=1/1\"",
             uri.as_str()
         );
+
         let pipeline = gst::parse::launch(pipeline.as_ref())?
             .downcast::<gst::Pipeline>()
             .map_err(|_| Error::Cast)?;
@@ -252,7 +258,7 @@ impl Video {
         let video_sink = video_sink.downcast::<gst_app::AppSink>().unwrap();
 
         let text_sink: gst::Element = pipeline.property("text-sink");
-        let text_sink = text_sink.downcast::<gst_app::AppSink>().unwrap();
+        let text_sink = text_sink.downcast::<gst_app::AppSink>().unwrap_or_default();
 
         Self::from_gst_pipeline(pipeline, video_sink, Some(text_sink))
     }
